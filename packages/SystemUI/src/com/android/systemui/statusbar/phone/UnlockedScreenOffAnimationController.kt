@@ -37,6 +37,7 @@ import com.android.systemui.statusbar.notification.stack.AnimationProperties
 import com.android.systemui.statusbar.notification.stack.StackStateAnimator
 import com.android.systemui.statusbar.policy.KeyguardStateController
 import com.android.systemui.util.settings.GlobalSettings
+import com.android.systemui.util.ScreenAnimationController
 import dagger.Lazy
 import javax.inject.Inject
 
@@ -126,6 +127,17 @@ constructor(
                     override fun onAnimationEnd(animation: Animator) {
                         lightRevealAnimationPlaying = false
                         interactionJankMonitor.end(CUJ_SCREEN_OFF)
+                        val wakefulness = wakefulnessLifecycle.getWakefulness()
+                        if (ScreenAnimationController.INSTANCE().shouldPlayAnimation() && (wakefulness == 1 || wakefulness == 2)) {
+                            centralSurfaces.updateIsKeyguard()
+                        }
+                        if (powerManager.isInteractive(0)) {
+                            if (lightRevealScrim.revealAmount == 1.0f) {
+                                return
+                            }
+                            lightRevealScrim.revealAmount = 1.0f
+                        }
+                        ScreenAnimationController.INSTANCE().setAnimationPlaying(false)
                     }
 
                     override fun onAnimationStart(animation: Animator) {

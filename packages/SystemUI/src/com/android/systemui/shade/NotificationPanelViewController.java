@@ -5532,4 +5532,13 @@ public final class NotificationPanelViewController implements ShadeSurface, Dump
         return mUseIslandNotification || mView.getContext().getResources().getConfiguration().orientation 
             == Configuration.ORIENTATION_LANDSCAPE;
     }
+
+    public boolean isPanelFullyCollapsed() {
+        int state = mBarState;
+        if (state == StatusBarState.SHADE_LOCKED 
+            || state == StatusBarState.KEYGUARD) {
+            return mQsController.isVisible();
+        }
+        return mExpandedFraction <= 0.0f;
+    }
 }
